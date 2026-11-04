@@ -181,7 +181,7 @@ The tracked `vercel.json` configures the Vite application. Use these project set
 | Output directory | `dist` |
 | Environment variables | Server-only Metered settings for TURN; see below |
 
-After authenticating the Vercel CLI, run `vercel --prod` from the project directory to publish a new production build. Local Vercel account/project linkage lives in ignored `.vercel/`; it is not part of the private source repository. Repository visibility is managed separately from website access.
+After authenticating the Vercel CLI, run `vercel --prod` from the project directory to publish a new production build. Local Vercel account/project linkage lives in ignored `.vercel/`; it is not committed to the source repository. Repository visibility is managed separately from website access.
 
 ## TURN setup and call acceptance
 
