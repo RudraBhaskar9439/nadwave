@@ -155,6 +155,8 @@ vercel.json            Vercel build and hosting configuration
 
 Production URL: **https://nadwave.vercel.app**
 
+The Vercel project is connected to the private GitHub repository `RudraBhaskar9439/nadwave`. Pushes to `main` are configured to deploy to production automatically.
+
 The tracked `vercel.json` configures the Vite application. Use these project settings:
 
 | Setting | Value |
