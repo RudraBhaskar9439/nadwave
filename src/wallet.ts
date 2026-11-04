@@ -36,6 +36,7 @@ export async function ensureMonad() {
   catch(error) {
     if ((error as {code?:number}).code!==4902) throw error
     await injected.request({method:'wallet_addEthereumChain',params:[{chainId:'0x279f',chainName:chain.name,nativeCurrency:chain.nativeCurrency,rpcUrls:[...chain.rpcUrls.default.http],blockExplorerUrls:[chain.blockExplorers.default.url]}]})
+    await injected.request({method:'wallet_switchEthereumChain',params:[{chainId:'0x279f'}]})
   }
 }
 async function finalizedReceipt(hash:Hash) {

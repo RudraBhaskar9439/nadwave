@@ -1,0 +1,229 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "initialOwner",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidMember",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidRoom",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Unauthorized",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes16",
+          "name": "roomId",
+          "type": "bytes16"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "member",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "allowed",
+          "type": "bool"
+        }
+      ],
+      "name": "MembershipChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes16",
+          "name": "roomId",
+          "type": "bytes16"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        }
+      ],
+      "name": "RoomClosed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes16",
+          "name": "roomId",
+          "type": "bytes16"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "expiresAt",
+          "type": "uint64"
+        }
+      ],
+      "name": "RoomRegistered",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "ROOM_LIFETIME",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "roomId",
+          "type": "bytes16"
+        }
+      ],
+      "name": "closeRoom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "roomId",
+          "type": "bytes16"
+        },
+        {
+          "internalType": "address",
+          "name": "member",
+          "type": "address"
+        }
+      ],
+      "name": "isMember",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "roomId",
+          "type": "bytes16"
+        }
+      ],
+      "name": "registerRoom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "",
+          "type": "bytes16"
+        }
+      ],
+      "name": "rooms",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "expiresAt",
+          "type": "uint64"
+        },
+        {
+          "internalType": "bool",
+          "name": "closed",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes16",
+          "name": "roomId",
+          "type": "bytes16"
+        },
+        {
+          "internalType": "address",
+          "name": "member",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "allowed",
+          "type": "bool"
+        }
+      ],
+      "name": "setMember",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x60a0604052348015600f57600080fd5b5060405161082a38038061082a833981016040819052602c916062565b6001600160a01b0381166052576040516339ec64c160e11b815260040160405180910390fd5b6001600160a01b03166080526090565b600060208284031215607357600080fd5b81516001600160a01b0381168114608957600080fd5b9392505050565b6080516107786100b26000396000818161013b015261023401526107786000f3fe608060405234801561001057600080fd5b506004361061007d5760003560e01c80638da5cb5b1161005b5780638da5cb5b14610136578063ae28a96614610175578063affbb4df14610198578063dd6710a0146101ab57600080fd5b806310cb58ef14610082578063147aae6f146100975780631a1c27f514610113575b600080fd5b61009561009036600461065c565b6101be565b005b6100de6100a536600461065c565b6000602081905290815260409020546001600160a01b03811690600160a01b810467ffffffffffffffff1690600160e01b900460ff1683565b604080516001600160a01b03909416845267ffffffffffffffff90921660208401521515908201526060015b60405180910390f35b610126610121366004610695565b6102cb565b604051901515815260200161010a565b61015d7f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b03909116815260200161010a565b61017f6201518081565b60405167ffffffffffffffff909116815260200161010a565b6100956101a63660046106c8565b6103ac565b6100956101b936600461065c565b61051b565b6001600160801b03198116600090815260208190526040902080546001600160a01b031615806101f657508054600160e01b900460ff165b156102145760405163353cbf1760e01b815260040160405180910390fd5b80546001600160a01b031633148015906102575750336001600160a01b037f00000000000000000000000000000000000000000000000000000000000000001614155b15610274576040516282b42960e81b815260040160405180910390fd5b805460ff60e01b198116600160e01b1782556040516001600160a01b03909116906001600160801b03198416907f6f44f882d4cb7a3e12503ad59aa3718013b75b6048cc7492cc169c8e3cc6513890600090a35050565b6001600160801b03198216600090815260208181526040808320815160608101835290546001600160a01b038082168352600160a01b820467ffffffffffffffff1694830194909452600160e01b900460ff161515918101919091529083161580159061033a57508060400151155b8015610353575042816020015167ffffffffffffffff16115b80156103a2575080516001600160a01b03848116911614806103a257506001600160801b0319841660009081526001602090815260408083206001600160a01b038716845290915290205460ff165b9150505b92915050565b6001600160801b0319831660009081526020818152604091829020825160608101845290546001600160a01b038116808352600160a01b820467ffffffffffffffff1693830193909352600160e01b900460ff161515928101929092523314610427576040516282b42960e81b815260040160405180910390fd5b806040015180610445575042816020015167ffffffffffffffff1611155b156104635760405163353cbf1760e01b815260040160405180910390fd5b6001600160a01b0383161580610485575080516001600160a01b038481169116145b156104a3576040516339ec64c160e11b815260040160405180910390fd5b6001600160801b0319841660008181526001602090815260408083206001600160a01b03881680855290835292819020805460ff191687151590811790915590519081529192917ff6230bfc86bce9bf6b771fdf1f7af9c12d1e532898eeb43c4cc54225ebc5bae8910160405180910390a350505050565b6001600160801b03198116158061055357506001600160801b031981166000908152602081905260409020546001600160a01b031615155b156105715760405163353cbf1760e01b815260040160405180910390fd5b60006105806201518042610714565b604080516060810182523380825267ffffffffffffffff848116602080850182815260008688018181526001600160801b03198c168083528285529189902097518854935191511515600160e01b0260ff60e01b1992909716600160a01b026001600160e01b03199094166001600160a01b0390911617929092179190911693909317909455935193845293945092917f921d42f8f9bfb5e78c419e787d02d3c152facaebb19c3c59d9ace582ddb96321910160405180910390a35050565b80356001600160801b03198116811461065757600080fd5b919050565b60006020828403121561066e57600080fd5b6106778261063f565b9392505050565b80356001600160a01b038116811461065757600080fd5b600080604083850312156106a857600080fd5b6106b18361063f565b91506106bf6020840161067e565b90509250929050565b6000806000606084860312156106dd57600080fd5b6106e68461063f565b92506106f46020850161067e565b91506040840135801515811461070957600080fd5b809150509250925092565b67ffffffffffffffff81811683821601908111156103a657634e487b7160e01b600052601160045260246000fdfea2646970667358221220f40a5329ab795139078652358e7a75dee743928dca782a380dbd16e07153797364736f6c634300081e0033",
+  "compiler": "0.8.30+commit.73712a01.Emscripten.clang"
+}

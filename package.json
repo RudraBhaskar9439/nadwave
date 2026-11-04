@@ -22,7 +22,7 @@
     "@types/react": "19.2.0",
     "@types/react-dom": "19.2.0",
     "@vitejs/plugin-react": "5.0.0",
-    "solc": "0.8.28",
+    "solc": "0.8.30",
     "tsx": "4.20.0",
     "typescript": "5.9.3",
     "vite": "7.1.0",

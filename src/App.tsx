@@ -1,3 +1,4 @@
+import deployment from './deployment.json'
 import {useEffect,useRef,useState,type FormEvent} from 'react'
 import {ArrowDownLeft,ArrowRight,AudioLines,Check,ChevronDown,ExternalLink,Globe2,Headphones,Link2,Loader2,LockKeyhole,MessageCircle,Mic,MicOff,Plus,Radio,Send,Settings2,ShieldCheck,Signal,Users,Video,Volume2,VolumeX,Wallet,X} from 'lucide-react'
 import {isAddress,type Address,type Hash} from 'viem'
@@ -30,9 +31,9 @@ export default function App() {
  const [displayName,setDisplayName]=useState(sessionStorage.getItem('nadwave-name')||'')
  const [roomName,setRoomName]=useState('The listening room')
  const [link,setLink]=useState('')
- const [registry,setRegistry]=useState<Address|undefined>(()=>{const value=new URLSearchParams(location.search).get('registry')||localStorage.getItem('nadwave-registry');return value&&isAddress(value)?value:undefined})
+ const [registry,setRegistry]=useState<Address|undefined>(()=>{const value=new URLSearchParams(location.search).get('registry')||localStorage.getItem('nadwave-registry')||deployment.address;return value&&isAddress(value)?value:undefined})
  const [contractInput,setContractInput]=useState('')
- const [onchain,setOnchain]=useState(false)
+ const [onchain,setOnchain]=useState(!!registry)
  const [wallet,setWallet]=useState<Address>()
  const [operator,setOperator]=useState<Address>()
  const [approveAddress,setApproveAddress]=useState('')
@@ -49,6 +50,7 @@ export default function App() {
  const [camera,setCamera]=useState<MediaStream>()
  const [cameraOn,setCameraOn]=useState(false)
  const [active,setActive]=useState(false)
+ const [localLink,setLocalLink]=useState(false)
  const [copied,setCopied]=useState(false)
  const session=useRef<Session|undefined>(undefined)
  const chatEnd=useRef<HTMLDivElement>(null)
@@ -56,17 +58,17 @@ export default function App() {
 
  useEffect(()=>{function read(){if(!location.hash)return;try{setPending(parseInvite(location.href));setDialog('join')}catch(e){setError(errorMessage(e))}}read();window.addEventListener('hashchange',read);return()=>{window.removeEventListener('hashchange',read);generation.current++;session.current?.leave()}},[])
  useEffect(()=>subscribeWalletAccountChange(address=>{if(session.current)leave();setWallet(address)}),[registry])
- useEffect(()=>{chatEnd.current?.scrollIntoView({behavior:'smooth'})},[chats.length])
+ useEffect(()=>{const container=chatEnd.current?.parentElement;if(container)container.scrollTop=container.scrollHeight},[chats.length])
  useEffect(()=>{if(!notice)return;const timer=setTimeout(()=>setNotice(''),5000);return()=>clearTimeout(timer)},[notice])
  async function run(label:string,fn:()=>Promise<void>){setError('');setBusy(label);try{await fn()}catch(e){setError(errorMessage(e))}finally{setBusy('')}}
  async function connect(){const account=await connectWallet();setWallet(account);return account}
  async function enter(next:Invite){
    const request=++generation.current
-   session.current?.leave();setActive(false);setPeople([]);setChats([]);setStreams({});setMic(false);setCamera(undefined);setCameraOn(false)
+   session.current?.leave();setActive(false);setPeople([]);setChats([]);setStreams({});setMic(false);setLocalLink(false);setCamera(undefined);setCameraOn(false)
    let account=wallet
    if(next.contract){account=await connect();setOperator(await roomOperator(next.contract,next.id))}else setOperator(undefined)
    const nextSession=await startSession(next,displayName,account,{
-    onPeople:setPeople,onChat:chat=>setChats(old=>[...old.slice(-199),chat]),
+    onPeople:setPeople,onLocalLink:setLocalLink,onChat:chat=>setChats(old=>[...old.slice(-199),chat]),
     onStream:(stream,id)=>setStreams(old=>({...old,[id+':'+stream.id]:stream})),
     onLeave:id=>setStreams(old=>Object.fromEntries(Object.entries(old).filter(([key])=>!key.startsWith(id+':')))),
     onError:message=>{setError(message);if(message.includes('ended')||message.includes('expired')){setActive(false);setMic(false);setStreams({});setCamera(undefined);setCameraOn(false)}},
@@ -75,7 +77,7 @@ export default function App() {
    session.current=nextSession;setInvite(next);setPending(undefined);setActive(true);setDialog(null)
    sessionStorage.setItem('nadwave-name',displayName.trim());history.replaceState(null,'',inviteURL(next))
  }
- function leave(){generation.current++;session.current?.leave();session.current=undefined;setInvite(undefined);setActive(false);setChats([]);setPeople([]);setStreams({});setMic(false);setCamera(undefined);setCameraOn(false);setOperator(undefined);history.replaceState(null,'',location.pathname+(registry?'?registry='+registry:''))}
+ function leave(){generation.current++;session.current?.leave();session.current=undefined;setInvite(undefined);setActive(false);setLocalLink(false);setChats([]);setPeople([]);setStreams({});setMic(false);setCamera(undefined);setCameraOn(false);setOperator(undefined);history.replaceState(null,'',location.pathname+(registry?'?registry='+registry:''))}
  async function create(event:FormEvent){event.preventDefault();await run('Creating your room',async()=>{
   const next=newInvite(roomName)
   if(onchain){if(!registry)throw new Error('Deploy or connect a registry first.');await connect();await writeRoom(registry,'registerRoom',[next.id],setTx);next.contract=registry}
@@ -111,14 +113,14 @@ export default function App() {
       <div className={'record-space '+(mic?'is-playing':'')}>{(cameraOn||Object.values(streams).some(s=>s.getVideoTracks().length>0))&&<div className="camera-grid">{cameraOn&&camera&&<CameraPlayer stream={camera}/>} {Object.entries(streams).filter(([,s])=>s.getVideoTracks().length>0).map(([id,s])=><CameraPlayer key={id} stream={s}/>)}</div>}<div className="orbit orbit-one"/><div className="orbit orbit-two"/><div className="orbit orbit-three"/><div className="record"><div className="record-groove"/><div className="record-label"><AudioLines size={38} strokeWidth={1.4}/><span>NADWAVE</span><small>SIDE A / YOUR FREQUENCY</small></div><div className="record-hole"/></div><span className="record-tag">EST. 2026 — STAY ON YOUR WAVELENGTH</span></div>
       <div className="studio-title"><span className="eyebrow">{active?'THE CHANNEL IS YOURS':'FIND YOUR SIGNAL'}</span><h2>{active?(mic?'You’re on air.':'You’re in good company.'):'Small rooms. Real connection.'}</h2><p>{active?(people.length?`${people.length+1} people here. No recordings. Just this moment.`:'You’re the first one here. Share an invite to start the conversation.'):'A live voice room, a private chat, and a place to just be.'}</p></div>
       <div className="waveform" aria-hidden="true">{Array.from({length:47},(_,i)=><i key={i} style={{height:`${8+Math.sin(i*1.8)**2*24}px`,animationDelay:`${i*.04}s`}}/>)}</div>
-      <div className="studio-footer"><span><ShieldCheck size={14}/>Encrypted peer to peer</span><span><Signal size={14}/>{active?`${people.length} peer${people.length===1?'':'s'} connected`:'No session active'}</span></div>
+      <div className="studio-footer"><span><ShieldCheck size={14}/>Encrypted peer to peer</span><span><Signal size={14}/>{active?(localLink?'Local tab chat linked':`${people.length} peer${people.length===1?'':'s'} connected`):'No session active'}</span></div>
      </section>
      <section className="chat-panel" aria-label="Room chat"><div className="chat-header"><h2><MessageCircle size={18}/>Room chat</h2><span className="label">EPHEMERAL</span></div><div className="chat-body">
       <div className="chat-welcome"><span className="chat-symbol"><LockKeyhole size={22}/></span><strong>A conversation, just for this room.</strong><p>Messages are encrypted and live only in connected browsers. Nothing is saved to a server.</p></div>
       {chats.map(chat=><div className={'chat-message '+(chat.person.id===session.current?.self.id?'own':'')} key={chat.id}><span className="avatar mini">{chat.person.name.slice(0,1).toUpperCase()}</span><div><div className="message-meta"><strong>{chat.person.name}</strong>{chat.person.address&&<ShieldCheck size={12}/>}<time>{time(chat.at)}</time></div><p>{chat.text}</p></div></div>)}<div ref={chatEnd}/>
      </div><form className="chat-input" onSubmit={send}><input aria-label="Message" placeholder={active?'Say something good…':'Create or join a room to chat'} value={message} onChange={e=>setMessage(e.target.value)} maxLength={2000} disabled={!active}/><button aria-label="Send message" disabled={!active||!message.trim()}><Send size={17}/></button></form><p className="chat-hint"><LockKeyhole size={11}/>Only connected participants receive messages.</p></section>
     </div>
-    <div className="below-grid"><section className="participants"><div className="section-heading"><h2>In this room <span>{roomPeople.length.toString().padStart(2,'0')}</span></h2><Users size={17}/></div>{roomPeople.length?<div className="people-list">{roomPeople.map((person,i)=><div className="person" key={person.id}><span className={'avatar '+(i===0?'host':'')}>{person.name.slice(0,1).toUpperCase()}</span><div><strong>{person.name}{i===0?' (you)':''}</strong><small>{i===0?(mic?'Microphone on':'Microphone off'):(person.address?'Wallet verified':'Invite access')}</small></div>{i===0?(mic?<Mic size={15}/>:<MicOff size={15}/>):<Headphones size={15}/>}</div>)}</div>:<div className="empty-people"><span className="avatar faded"><Users size={19}/></span><p>There’s room for your people.<br/><small>Create a frequency and send the first invite.</small></p></div>}</section>
+    {localLink&&<p className="local-hint">Local tab chat is connected. Audio and camera between devices require a WebRTC connection.</p>}<div className="below-grid"><section className="participants"><div className="section-heading"><h2>In this room <span>{roomPeople.length.toString().padStart(2,'0')}</span></h2><Users size={17}/></div>{roomPeople.length?<div className="people-list">{roomPeople.map((person,i)=><div className="person" key={person.id}><span className={'avatar '+(i===0?'host':'')}>{person.name.slice(0,1).toUpperCase()}</span><div><strong>{person.name}{i===0?' (you)':''}</strong><small>{i===0?(mic?'Microphone on':'Microphone off'):(person.address?'Wallet verified':'Invite access')}</small></div>{i===0?(mic?<Mic size={15}/>:<MicOff size={15}/>):<Headphones size={15}/>}</div>)}</div>:<div className="empty-people"><span className="avatar faded"><Users size={19}/></span><p>There’s room for your people.<br/><small>Create a frequency and send the first invite.</small></p></div>}</section>
     <section className="connection-card"><span className="connection-icon"><Globe2 size={22}/></span><div><span className="eyebrow">POWERED BY MONAD</span><h3>Your room. Your rules.</h3><p>{invite?.contract?'Membership is verified on Monad. Only approved wallets can connect.':'Add wallet-approved membership with a room registry on Monad testnet.'}</p></div><button className="text-button" onClick={()=>setDialog('network')}>{registry?'Manage access':'Set up Monad'}<ArrowRight size={17}/></button></section></div>
     <footer className="page-footer"><span>MADE FOR CONVERSATIONS THAT MATTER.</span><button onClick={()=>setDialog('about')}>About Nadwave <ArrowRight size={12}/></button></footer>
    </main>

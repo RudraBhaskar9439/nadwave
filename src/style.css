@@ -10,3 +10,5 @@
 .camera-grid{position:absolute;inset:0 20px;z-index:3;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;background:#18211c;border-radius:12px;overflow:hidden}.camera-tile{max-width:45%;max-height:215px;min-width:100px;border-radius:9px;object-fit:cover;background:#111b14}
 
 h1{overflow-wrap:anywhere}.page-heading>div:first-child{min-width:0}.page-heading>.primary-button{flex-shrink:0}
+
+.local-hint{font-size:10px;color:#7c8c68;line-height:1.7;margin-top:12px}

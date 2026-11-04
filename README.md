@@ -6,7 +6,11 @@ Private live audio rooms, optional camera sharing, and encrypted ephemeral chat 
 
 [Run the local demo](#quick-start) · [Monad testnet faucet](https://faucet.monad.xyz) · [Monad documentation](https://docs.monad.xyz)
 
-**Demo status:** local application only. No hosted website or live contract deployment has been performed.
+**Demo status:** the frontend runs locally. The room registry is deployed on Monad testnet; no website has been published.
+
+- Registry: [`0x07a577d7cb5de074841e7a47f12ed3e7defde923`](https://testnet.monadscan.com/address/0x07a577d7cb5de074841e7a47f12ed3e7defde923)
+- Deployment: [`0x749876a2…a3e6e756`](https://testnet.monadscan.com/tx/0x749876a2a8bae80fb2721e85776baa72e298ecbc168c585911f70101a3e6e756)
+- Network: Monad testnet, chain ID **10143**.
 
 ## What you can do
 
@@ -22,6 +26,18 @@ Private live audio rooms, optional camera sharing, and encrypted ephemeral chat 
 Nadwave is a hackathon MVP for small groups, designed around a maximum of eight participants. It does not record audio or store message history. The interface reports actual connected peers; no sample conversations or fabricated network activity are shown.
 
 ## Quick start
+
+### Downloadable demo bundle
+
+The source-and-build bundle includes `dist/`. Start it without installing npm dependencies:
+
+```bash
+sh start-demo.command
+```
+
+Open **http://127.0.0.1:5173** and keep that terminal window open. This launcher requires Python 3 and serves only this computer.
+
+### Source checkout
 
 Use Node.js 22.12+ or 24+, and npm.
 
@@ -51,17 +67,23 @@ No API keys, seed phrases, backend account, or private-key environment variables
 
 For a single-device demonstration, browser audio playback may require an additional click. Opening the same microphone in multiple tabs may cause feedback; keep one microphone muted.
 
+### Local chat fallback
+
+If public signaling relays cannot connect browsers, demonstrate encrypted chat in two tabs of the **same browser and origin**. The interface shows **Local tab chat linked** for this connection. This fallback uses encrypted `BroadcastChannel` messages; it does not provide cross-device connectivity or carry camera/audio streams. Sending and receiving chat in both directions was tested in two local tabs.
+
+Cross-device audio/video and public-relay connectivity remain unverified on the current network. Use the local-tab chat demo when demonstrating without reliable peer discovery.
+
 ## Deploy on Monad
 
 The application targets **Monad testnet**, chain ID **10143**, using `https://testnet-rpc.monad.xyz`. It does not spend mainnet MON.
 
 1. Open the local app in the browser where MetaMask is installed.
-2. Connect the account that will pay deployment gas. Obtain test MON from the faucet if necessary.
-3. Open **Monad connection** and choose **Deploy room registry**.
-4. Review and sign the transaction in MetaMask. The app waits for the receipt and shows an explorer link.
-5. The deployed registry is saved locally in that browser. Another browser can connect it through **Use an existing registry**, or open the app with `?registry=0xYOUR_CONTRACT_ADDRESS`.
-6. Create a room with **Approve members on Monad** selected. Sign the room registration transaction.
-7. Approve an invitee's wallet in **Manage access**, then share the invitation separately.
+2. Connect an account with test MON to register rooms and change membership. Obtain test MON from the faucet if necessary.
+3. Use the deployed registry above. Another browser can connect it through **Use an existing registry**, or open the local app with `?registry=0x07a577d7cb5de074841e7a47f12ed3e7defde923`.
+4. Create a room with **Approve members on Monad** selected. Sign the room registration transaction.
+5. Approve an invitee's wallet in **Manage access**, then share the invitation separately.
+
+To deploy an independent registry instead, choose **Deploy room registry** in **Monad connection**, then review and sign its deployment transaction in MetaMask. The app waits for confirmation, saves the contract address in that browser, and links to the explorer.
 
 The project administrator passed to the constructor is:
 
@@ -71,7 +93,7 @@ The project administrator passed to the constructor is:
 
 This address can retire rooms. Each room creator controls that room's membership. Merely knowing an address cannot sign or deploy transactions; the paying account must authorize deployment in its wallet. Deployment bytecode and ABI are generated from the included Solidity source by `npm run compile`.
 
-**Contract activation:** the frontend includes a wallet deployment flow. The registry becomes live only after its deployment transaction has been signed and confirmed. An explorer link in the app identifies that transaction and contract.
+The recorded deployment above was signed in MetaMask and confirmed with a successful receipt. New room registrations and membership changes still require their own wallet signatures and testnet gas.
 
 ## Architecture
 
@@ -103,12 +125,15 @@ Wallet-approved rooms bind a signed identity to the room ID, registry, network, 
 - Removing a wallet prevents cooperating clients from continuing communication after the next membership check, normally within 15 seconds. Already-received messages and recordings cannot be revoked. Rotate the invitation by creating a new room after a leaked invite.
 - The project administrator can close any registered room but cannot decrypt chat through the contract.
 - Public signaling relays, RPC providers and browser networking must be available. Nostr is used only for discovery; message content and audio travel peer to peer.
+- A same-origin `BroadcastChannel` fallback supports encrypted local-tab chat without a signaling relay. Its connection indicator distinguishes that local demo path from WebRTC peers.
 - No TURN service is configured by default. Restrictive corporate networks, carrier-grade NAT and some mobile networks may prevent connections. Add a managed TURN service before relying on the app in those environments.
 - This is a hackathon prototype, not an audited secure messenger. It has no moderation backend, archival storage, identity recovery or production service guarantee.
 
 ## Tests
 
 `npm run check` covers Solidity compilation, wallet permission boundaries, duplicate room protection, member approval/removal, administrator closure, expiry, encrypted message round trips, wrong-key/tamper rejection, malformed invite rejection and the production build.
+
+Validated for this demo: **11 contract checks, two encryption/invite checks, a production build, bidirectional local-tab chat, and the confirmed Monad testnet deployment above.**
 
 The contract checks run on a local EthereumJS VM. They do not prove a live Monad deployment or test MetaMask signatures on a user's behalf. Browser-to-browser transport and microphone behavior need testing on the intended devices and networks.
 
