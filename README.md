@@ -6,7 +6,7 @@ Private live audio rooms, optional camera sharing, and encrypted ephemeral chat 
 
 [Open Nadwave](https://nadwave.vercel.app) · [Run locally](#quick-start) · [Monad testnet faucet](https://faucet.monad.xyz) · [Monad documentation](https://docs.monad.xyz)
 
-**Deployment:** public HTTPS frontend on Vercel with the deployed Monad testnet room registry. The source repository remains private. Local startup is also available.
+**Deployment:** public HTTPS frontend on Vercel with the deployed Monad testnet room registry. Source: [RudraBhaskar9439/nadwave](https://github.com/RudraBhaskar9439/nadwave). Local startup is also available.
 
 **Call readiness:** the WebRTC call flow, media controls, connection status, retry behavior, and server-side TURN integration are implemented. Production TURN configuration is deployed: `/api/ice` returned HTTP 200 with `relayConfigured: true` and five ICE endpoints. A browser peer-pair test passed with synthetic audio/video forced through TURN. A complete two-device Nadwave room call and physical microphone/camera acceptance still require verification. Encrypted local-tab chat has been demonstrated.
 
@@ -169,7 +169,7 @@ vercel.json            Vercel build and hosting configuration
 
 Production URL: **https://nadwave.vercel.app**
 
-The Vercel project is connected to the private GitHub repository `RudraBhaskar9439/nadwave`. Pushes to `main` are configured to deploy to production automatically.
+The Vercel project is connected to the GitHub repository `RudraBhaskar9439/nadwave`. Pushes to `main` are configured to deploy to production automatically.
 
 The tracked `vercel.json` configures the Vite application. Use these project settings:
 
@@ -181,7 +181,7 @@ The tracked `vercel.json` configures the Vite application. Use these project set
 | Output directory | `dist` |
 | Environment variables | Server-only Metered settings for TURN; see below |
 
-After authenticating the Vercel CLI, run `vercel --prod` from the project directory to publish a new production build. Local Vercel account/project linkage lives in ignored `.vercel/`; it is not part of the private source repository. Keep source repository visibility private independently of the public website.
+After authenticating the Vercel CLI, run `vercel --prod` from the project directory to publish a new production build. Local Vercel account/project linkage lives in ignored `.vercel/`; it is not part of the private source repository. Repository visibility is managed separately from website access.
 
 ## TURN setup and call acceptance
 
