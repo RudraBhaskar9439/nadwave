@@ -4,9 +4,9 @@
 
 Private live audio rooms, optional camera sharing, and encrypted ephemeral chat with wallet-approved membership on Monad.
 
-[Run the local demo](#quick-start) · [Monad testnet faucet](https://faucet.monad.xyz) · [Monad documentation](https://docs.monad.xyz)
+[Open Nadwave](https://nadwave-blitz.quiet-buddy-9104.chatgpt.site) · [Run locally](#quick-start) · [Monad testnet faucet](https://faucet.monad.xyz) · [Monad documentation](https://docs.monad.xyz)
 
-**Demo status:** the frontend runs locally. The room registry is deployed on Monad testnet; no website has been published.
+**Deployment:** public HTTPS frontend with the deployed Monad testnet room registry. The source repository remains private. Local startup is also available.
 
 - Registry: [`0x07a577d7cb5de074841e7a47f12ed3e7defde923`](https://testnet.monadscan.com/address/0x07a577d7cb5de074841e7a47f12ed3e7defde923)
 - Deployment: [`0x749876a2…a3e6e756`](https://testnet.monadscan.com/tx/0x749876a2a8bae80fb2721e85776baa72e298ecbc168c585911f70101a3e6e756)
@@ -60,7 +60,7 @@ No API keys, seed phrases, backend account, or private-key environment variables
 ## Two-minute demo
 
 1. Choose **Create a room**, enter a room name and display name, and create an invitation room.
-2. Choose **Invite people** and open the link in a second browser or device.
+2. Choose **Invite people** and open the link in a second tab of the same browser for the verified chat demo. Cross-device use requires working public signaling and WebRTC.
 3. Join with a different display name. The participant list updates after peers connect.
 4. Send messages from both browsers. Enable the microphone to talk; optionally enable the camera. Use headphones to avoid feedback.
 5. Leave the room. Rejoining starts with an empty chat history.
@@ -77,9 +77,9 @@ Cross-device audio/video and public-relay connectivity remain unverified on the 
 
 The application targets **Monad testnet**, chain ID **10143**, using `https://testnet-rpc.monad.xyz`. It does not spend mainnet MON.
 
-1. Open the local app in the browser where MetaMask is installed.
+1. Open the hosted app in the browser where MetaMask is installed, or use the local app.
 2. Connect an account with test MON to register rooms and change membership. Obtain test MON from the faucet if necessary.
-3. Use the deployed registry above. Another browser can connect it through **Use an existing registry**, or open the local app with `?registry=0x07a577d7cb5de074841e7a47f12ed3e7defde923`.
+3. Use the deployed registry above. Another browser can connect it through **Use an existing registry**, or open the app with `?registry=0x07a577d7cb5de074841e7a47f12ed3e7defde923`.
 4. Create a room with **Approve members on Monad** selected. Sign the room registration transaction.
 5. Approve an invitee's wallet in **Manage access**, then share the invitation separately.
 
