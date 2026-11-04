@@ -30,5 +30,8 @@
     "@ethereumjs/util": "9.1.0",
     "@ethereumjs/common": "4.4.0",
     "@ethereumjs/block": "5.3.0"
+  },
+  "engines": {
+    "node": "24.x"
   }
 }

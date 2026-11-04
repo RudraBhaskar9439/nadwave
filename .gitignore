@@ -8,3 +8,7 @@ dist/
 .openai/local*
 
 *.tsbuildinfo
+
+.vercel/
+.vercel
+.env*

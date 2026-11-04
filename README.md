@@ -4,9 +4,9 @@
 
 Private live audio rooms, optional camera sharing, and encrypted ephemeral chat with wallet-approved membership on Monad.
 
-[Open Nadwave](https://nadwave-blitz.quiet-buddy-9104.chatgpt.site) · [Run locally](#quick-start) · [Monad testnet faucet](https://faucet.monad.xyz) · [Monad documentation](https://docs.monad.xyz)
+[Open Nadwave](https://nadwave.vercel.app) · [Run locally](#quick-start) · [Monad testnet faucet](https://faucet.monad.xyz) · [Monad documentation](https://docs.monad.xyz)
 
-**Deployment:** public HTTPS frontend with the deployed Monad testnet room registry. The source repository remains private. Local startup is also available.
+**Deployment:** public HTTPS frontend on Vercel with the deployed Monad testnet room registry. The source repository remains private. Local startup is also available.
 
 - Registry: [`0x07a577d7cb5de074841e7a47f12ed3e7defde923`](https://testnet.monadscan.com/address/0x07a577d7cb5de074841e7a47f12ed3e7defde923)
 - Deployment: [`0x749876a2…a3e6e756`](https://testnet.monadscan.com/tx/0x749876a2a8bae80fb2721e85776baa72e298ecbc168c585911f70101a3e6e756)
@@ -39,7 +39,7 @@ Open **http://127.0.0.1:5173** and keep that terminal window open. This launcher
 
 ### Source checkout
 
-Use Node.js 22.12+ or 24+, and npm.
+Use Node.js **24.x** and npm.
 
 ```bash
 npm ci
@@ -135,6 +135,8 @@ Wallet-approved rooms bind a signed identity to the room ID, registry, network, 
 
 Validated for this demo: **11 contract checks, two encryption/invite checks, a production build, bidirectional local-tab chat, and the confirmed Monad testnet deployment above.**
 
+The Vercel production deployment also passed a fresh `npm ci` and build on Node.js 24.
+
 The contract checks run on a local EthereumJS VM. They do not prove a live Monad deployment or test MetaMask signatures on a user's behalf. Browser-to-browser transport and microphone behavior need testing on the intended devices and networks.
 
 ## Repository layout
@@ -146,12 +148,24 @@ scripts/               Contract compilation and EVM checks
 src/                   UI, encrypted transport and wallet integration
 src/generated/         Compiled deployment artifact
 public/                Static assets
-.openai/hosting.json   Hosting identity and static build location
+vercel.json            Vercel build and hosting configuration
 ```
 
-## Optional hosting
+## Vercel hosting
 
-If hosting is needed later, run `npm run build` and deploy `dist/` to an HTTPS static host. Keep any source repository private independently of the website's visibility. `.openai/hosting.json` contains an unpublished Sites hosting identity, not credentials or proof of deployment.
+Production URL: **https://nadwave.vercel.app**
+
+The tracked `vercel.json` configures the Vite application. Use these project settings:
+
+| Setting | Value |
+| --- | --- |
+| Node.js | `24.x` |
+| Install command | `npm ci` |
+| Build command | `npm run build` |
+| Output directory | `dist` |
+| Environment variables | None required |
+
+After authenticating the Vercel CLI, run `vercel --prod` from the project directory to publish a new production build. Local Vercel account/project linkage lives in ignored `.vercel/`; it is not part of the private source repository. Keep source repository visibility private independently of the public website.
 
 ## Credits and license
 
