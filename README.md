@@ -8,6 +8,8 @@ Private live audio rooms, optional camera sharing, and encrypted ephemeral chat 
 
 **Deployment:** public HTTPS frontend on Vercel with the deployed Monad testnet room registry. The source repository remains private. Local startup is also available.
 
+**Call readiness:** the WebRTC call flow, media controls, connection status, retry behavior, and server-side TURN integration are implemented. The Metered account has been created; production relay operation and a real two-device audio/video call still require verification. Encrypted local-tab chat has been demonstrated.
+
 - Registry: [`0x07a577d7cb5de074841e7a47f12ed3e7defde923`](https://testnet.monadscan.com/address/0x07a577d7cb5de074841e7a47f12ed3e7defde923)
 - Deployment: [`0x749876a2…a3e6e756`](https://testnet.monadscan.com/tx/0x749876a2a8bae80fb2721e85776baa72e298ecbc168c585911f70101a3e6e756)
 - Network: Monad testnet, chain ID **10143**.
@@ -18,6 +20,7 @@ Private live audio rooms, optional camera sharing, and encrypted ephemeral chat 
 - Share one invitation containing a random room identifier and a 256-bit secret.
 - Talk over encrypted, peer-to-peer WebRTC audio.
 - Turn on a low-bandwidth camera stream when a conversation needs a face.
+- See actual media connection status and retry a failed connection.
 - Send encrypted chat messages that stay in connected browsers.
 - Deploy a room registry from MetaMask on Monad testnet.
 - Create wallet-approved rooms, approve or remove wallets, and close rooms onchain.
@@ -35,7 +38,7 @@ The source-and-build bundle includes `dist/`. Start it without installing npm de
 sh start-demo.command
 ```
 
-Open **http://127.0.0.1:5173** and keep that terminal window open. This launcher requires Python 3 and serves only this computer.
+Open **http://127.0.0.1:5173** and keep that terminal window open. This launcher requires Python 3 and serves only this computer. It serves the static build, not Vercel API functions; local-tab chat and direct WebRTC remain available, while the TURN endpoint requires Vercel hosting or `vercel dev`.
 
 ### Source checkout
 
@@ -55,7 +58,7 @@ npm run build      # TypeScript check and production build
 npm run preview    # Preview production output
 ```
 
-No API keys, seed phrases, backend account, or private-key environment variables are required.
+Invite chat and direct WebRTC need no application API key. The optional TURN relay requires two **server-side** environment variables described below. No wallet seed phrase or private-key environment variable is required.
 
 ## Two-minute demo
 
@@ -71,7 +74,7 @@ For a single-device demonstration, browser audio playback may require an additio
 
 If public signaling relays cannot connect browsers, demonstrate encrypted chat in two tabs of the **same browser and origin**. The interface shows **Local tab chat linked** for this connection. This fallback uses encrypted `BroadcastChannel` messages; it does not provide cross-device connectivity or carry camera/audio streams. Sending and receiving chat in both directions was tested in two local tabs.
 
-Cross-device audio/video and public-relay connectivity remain unverified on the current network. Use the local-tab chat demo when demonstrating without reliable peer discovery.
+The local-tab indicator is separate from **Live media link connected**. A chat connection does not prove that microphone or camera media is flowing. Cross-device audio/video and TURN operation remain unverified until the real-call acceptance test below passes.
 
 ## Deploy on Monad
 
@@ -102,6 +105,11 @@ flowchart LR
     A[Browser A] <-->|Encrypted signaling| R[Public Nostr relays]
     B[Browser B] <-->|Encrypted signaling| R
     A <-->|WebRTC audio/video + AES-GCM chat| B
+    A -->|Fetch ICE configuration| I[Vercel /api/ice]
+    B -->|Fetch ICE configuration| I
+    I -->|Server-side provider API key| T[Metered TURN]
+    A <-->|Encrypted media relay when required| T
+    B <-->|Encrypted media relay when required| T
     A -->|Read membership / signed transactions| M[Monad room registry]
     B -->|Read membership| M
 ```
@@ -111,7 +119,8 @@ flowchart LR
 - **Web Crypto:** additional AES-256-GCM encryption for chat and authentication packets, with a fresh random IV for every message.
 - **Viem:** MetaMask connection, chain switching, signatures, deployment and contract calls.
 - **Solidity:** public room ownership, membership, 24-hour expiry and room closure.
-- **Static hosting:** production output lives in `dist/`; there is no application message server.
+- **Vercel:** serves the frontend from `dist/` and runs `/api/ice` to retrieve TURN configuration. There is no application message-history server.
+- **Metered TURN:** optional relay for networks where direct WebRTC fails. The provider API key stays in the server function; browsers receive the ICE credentials required by WebRTC.
 
 Wallet-approved rooms bind a signed identity to the room ID, registry, network, peer ID and session expiry. A peer must possess the invite secret and prove an approved wallet before the application activates that peer's communication channel. Membership reads use finalized state. Session signatures expire after one hour.
 
@@ -126,18 +135,21 @@ Wallet-approved rooms bind a signed identity to the room ID, registry, network, 
 - The project administrator can close any registered room but cannot decrypt chat through the contract.
 - Public signaling relays, RPC providers and browser networking must be available. Nostr is used only for discovery; message content and audio travel peer to peer.
 - A same-origin `BroadcastChannel` fallback supports encrypted local-tab chat without a signaling relay. Its connection indicator distinguishes that local demo path from WebRTC peers.
-- No TURN service is configured by default. Restrictive corporate networks, carrier-grade NAT and some mobile networks may prevent connections. Add a managed TURN service before relying on the app in those environments.
+- The TURN integration requires the Metered server environment variables. The account exists; a working production relay path has not yet been verified. If the endpoint is unavailable, the app reports that state and attempts direct STUN connections. Restrictive networks may still prevent media.
+- Metered dashboard/free-plan keys are not treated as ephemeral credentials. Rotate credentials manually when needed and monitor the selected plan's quota. The public ICE endpoint has same-origin checks and per-instance throttling, not global quota enforcement.
 - This is a hackathon prototype, not an audited secure messenger. It has no moderation backend, archival storage, identity recovery or production service guarantee.
 
 ## Tests
 
 `npm run check` covers Solidity compilation, wallet permission boundaries, duplicate room protection, member approval/removal, administrator closure, expiry, encrypted message round trips, wrong-key/tamper rejection, malformed invite rejection and the production build.
 
-Validated for this demo: **11 contract checks, two encryption/invite checks, a production build, bidirectional local-tab chat, and the confirmed Monad testnet deployment above.**
+The current suite passes **29 automated checks: 11 contract checks and 18 Node tests**, followed by a production build. Coverage includes encrypted messages and invitations, peer capacity, stream grouping, microphone/camera capture lifecycle, leaving during capture, late peers, relay configuration, and the server ICE endpoint.
+
+Previously demonstrated: bidirectional local-tab chat and the confirmed Monad testnet deployment above. A real microphone/camera call across two devices and the configured TURN relay remain acceptance checks.
 
 The Vercel production deployment also passed a fresh `npm ci` and build on Node.js 24.
 
-The contract checks run on a local EthereumJS VM. They do not prove a live Monad deployment or test MetaMask signatures on a user's behalf. Browser-to-browser transport and microphone behavior need testing on the intended devices and networks.
+Contract checks use a local EthereumJS VM; media lifecycle tests use controlled streams and peers. These checks do not substitute for hardware microphone/camera permission tests, a real two-device call, or a confirmed relay path.
 
 ## Repository layout
 
@@ -145,6 +157,8 @@ The contract checks run on a local EthereumJS VM. They do not prove a live Monad
 contracts/             Room registry and retained upstream source
 licenses/              Upstream license notices
 scripts/               Contract compilation and EVM checks
+api/                   Server-side ICE credential endpoint
+tests/                 ICE endpoint checks
 src/                   UI, encrypted transport and wallet integration
 src/generated/         Compiled deployment artifact
 public/                Static assets
@@ -165,9 +179,36 @@ The tracked `vercel.json` configures the Vite application. Use these project set
 | Install command | `npm ci` |
 | Build command | `npm run build` |
 | Output directory | `dist` |
-| Environment variables | None required |
+| Environment variables | Server-only Metered settings for TURN; see below |
 
 After authenticating the Vercel CLI, run `vercel --prod` from the project directory to publish a new production build. Local Vercel account/project linkage lives in ignored `.vercel/`; it is not part of the private source repository. Keep source repository visibility private independently of the public website.
+
+## TURN setup and call acceptance
+
+Selected provider: **Metered**, using its free plan with **20 GB per month**. The account/application has been created at `rudra9439.metered.live`. Production credentials and a real relay path must be verified before claiming TURN is operational.
+
+1. Select the Metered application `rudra9439.metered.live`. Account credentials stay with the account owner.
+2. Obtain the application domain and a **credential-scoped API key** that can retrieve TURN credentials. Do not use an account-wide administration key.
+3. Add these server environment variables to the Vercel project, then redeploy:
+
+   | Variable | Value |
+   | --- | --- |
+   | `METERED_TURN_DOMAIN` | `rudra9439.metered.live` |
+   | `METERED_TURN_API_KEY` | Credential-scoped provider API key |
+
+4. Keep both values on the server. Never use a `VITE_` prefix, put the provider key in frontend code, or commit filled credential files. `.env.example` contains placeholders only.
+5. Verify `/api/ice` returns usable ICE configuration with `relayConfigured: true`. Missing settings or a provider failure returns an explicit unavailable response; the client can still try direct STUN.
+
+The server requests `GET https://<domain>/api/v1/turn/credentials` with `region=global`. It validates the provider response, preserves TURN UDP/TCP/TLS entries, caches successful configuration for five minutes, and does not expose the provider API key in the response. Browsers necessarily receive TURN usernames/passwords to establish media connections. The dashboard/free-plan key is not assumed to expire automatically; use manual rotation and quota monitoring.
+
+Before claiming a completed live-call demo:
+
+1. Open the deployed app on two devices, ideally on different networks, and join the same invite.
+2. Grant microphone and camera access deliberately on each device. Use headphones and verify actual received audio and video in both directions.
+3. Check that the app reports **Live media link connected**, not only local-tab chat. Exercise mute, camera toggle, reconnect, and leave; leaving must stop capture.
+4. Confirm a selected relay candidate using browser WebRTC diagnostics when testing TURN. A successful ICE API response alone does not prove that a relay carried media.
+
+**Pending:** verification of the production ICE endpoint and a real two-device/relay acceptance test. No live-call or relay success is claimed yet.
 
 ## Credits and license
 

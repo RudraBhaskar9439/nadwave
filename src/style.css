@@ -12,3 +12,17 @@
 h1{overflow-wrap:anywhere}.page-heading>div:first-child{min-width:0}.page-heading>.primary-button{flex-shrink:0}
 
 .local-hint{font-size:10px;color:#7c8c68;line-height:1.7;margin-top:12px}
+.media-grid{position:absolute;inset:0 15px;z-index:3;display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px;align-content:start;overflow:auto;background:#18211c;padding:8px;border-radius:12px}
+.media-tile{position:relative;min-width:0;min-height:150px;aspect-ratio:4/3;overflow:hidden;border:1px solid #5e724c55;border-radius:11px;background:#111b14}
+.media-tile .camera-tile{display:block;width:100%;height:100%;max-width:none;max-height:none;min-width:0;object-fit:cover;border-radius:0}
+.local-camera .camera-tile{transform:scaleX(-1)}
+.media-name{position:absolute;bottom:0;left:0;right:0;padding:18px 10px 9px;display:flex;align-items:center;gap:7px;background:linear-gradient(transparent,#0c160ee8);font-size:10px;color:#edf5e3;overflow-wrap:anywhere}
+.media-name small{margin-left:auto;flex-shrink:0;font-size:8px;color:#bed4a4}
+.audio-avatar{height:100%;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:15px 8px 35px}
+.audio-avatar .avatar{width:43px;height:43px;background:#cce28b;color:#42592d}
+.audio-avatar>span:last-of-type{position:absolute;top:9px;right:9px;color:#9ebd74}
+.audio-avatar small{font-size:9px;color:#9aae86;text-align:center}
+.playback-button{position:absolute;z-index:2;top:10px;left:10px;right:10px;display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid #adc78c;background:#e4f1cdf2;color:#3c5427;font-size:10px;border-radius:6px;padding:9px}
+.call-status{display:flex;align-items:flex-start;gap:10px;border:1px solid #dce6ce;background:#f1f5e9;border-radius:9px;margin-top:15px;padding:13px 15px;color:#7e9167}
+.call-status>svg{margin-top:1px;color:#8aa365}.call-status>div{flex:1;min-width:0}.call-status strong{display:block;font-size:11px;font-weight:500;color:#637d47}.call-status p{font-size:10px;line-height:1.8;margin-top:4px;overflow-wrap:anywhere}.call-status.connected{background:#edf4e3;border-color:#d4e1c1}.call-status.failed{background:#fff3e9;border-color:#e8d0bd}.call-status.failed strong{color:#9b7151}.call-status.failed>svg{color:#ad8865}.call-status .relay-warning{color:#a27c56}.small-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid #c5d6ae;border-radius:6px;background:#e8f0dc;color:#6c844d;font-size:10px;padding:8px 11px;flex-shrink:0}.small-button:hover{background:#dceac9}
+@media(max-width:720px){.media-grid{inset:0 10px;gap:8px;padding:6px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}.media-tile{min-height:145px}.call-status{padding:12px;flex-wrap:wrap}.call-status .small-button{margin-left:26px}.media-name{font-size:9px}.media-name small{font-size:7px}}
