@@ -8,7 +8,7 @@ Private live audio rooms, optional camera sharing, and encrypted ephemeral chat 
 
 **Deployment:** public HTTPS frontend on Vercel with the deployed Monad testnet room registry. Source: [RudraBhaskar9439/nadwave](https://github.com/RudraBhaskar9439/nadwave). Local startup is also available.
 
-**Call readiness:** the WebRTC call flow, media controls, connection status, retry behavior, and server-side TURN integration are implemented. Production TURN configuration is deployed: `/api/ice` returned HTTP 200 with `relayConfigured: true` and five ICE endpoints. A browser peer-pair test passed with synthetic audio/video forced through TURN. A complete two-device Nadwave room call and physical microphone/camera acceptance still require verification. Encrypted local-tab chat has been demonstrated.
+**Call readiness:** the WebRTC call flow, media controls, connection status, retry behavior, and server-side TURN integration are implemented. Production TURN configuration is deployed: `/api/ice` returned HTTP 200 with `relayConfigured: true` and five ICE endpoints. A complete Nadwave room test passed in two browser tabs with synthetic audio/video, Nostr discovery and forced TURN routing. Physical two-device microphone/camera acceptance remains unchecked. Encrypted local-tab chat has been demonstrated.
 
 - Registry: [`0x07a577d7cb5de074841e7a47f12ed3e7defde923`](https://testnet.monadscan.com/address/0x07a577d7cb5de074841e7a47f12ed3e7defde923)
 - Deployment: [`0x749876a2…a3e6e756`](https://testnet.monadscan.com/tx/0x749876a2a8bae80fb2721e85776baa72e298ecbc168c585911f70101a3e6e756)
@@ -74,7 +74,7 @@ For a single-device demonstration, browser audio playback may require an additio
 
 If public signaling relays cannot connect browsers, demonstrate encrypted chat in two tabs of the **same browser and origin**. The interface shows **Local tab chat linked** for this connection. This fallback uses encrypted `BroadcastChannel` messages; it does not provide cross-device connectivity or carry camera/audio streams. Sending and receiving chat in both directions was tested in two local tabs.
 
-The local-tab indicator is separate from **Live media link connected**. A chat connection does not prove that microphone or camera media is flowing. Synthetic media has passed an isolated forced-TURN test; a complete cross-device Nadwave room call remains an acceptance check.
+The local-tab indicator is separate from **Live media link connected**. A chat connection does not prove that microphone or camera media is flowing. Synthetic media has passed a complete Nadwave room test over Nostr and forced TURN in two browser tabs. Physical capture on two separate devices remains an acceptance check.
 
 ## Deploy on Monad
 
@@ -135,7 +135,7 @@ Wallet-approved rooms bind a signed identity to the room ID, registry, network, 
 - The project administrator can close any registered room but cannot decrypt chat through the contract.
 - Public signaling relays, RPC providers and browser networking must be available. Nostr is used only for discovery. Encrypted WebRTC peer connections carry chat and media directly or through TURN when required; the relay does not remove transport encryption.
 - A same-origin `BroadcastChannel` fallback supports encrypted local-tab chat without a signaling relay. Its connection indicator distinguishes that local demo path from WebRTC peers.
-- The Metered server configuration is deployed and the production ICE endpoint has been verified. An isolated browser peer-pair test has verified a forced-TURN media path; the full two-device room workflow remains unverified. If the endpoint is unavailable, the app reports that state and attempts direct STUN connections. Restrictive networks may still prevent media.
+- The Metered server configuration is deployed and the production ICE endpoint has been verified. A complete synthetic Nadwave room test has verified a forced-TURN media path in two browser tabs. Physical microphone/camera capture on separate devices remains unchecked. If the endpoint is unavailable, the app reports that state and attempts direct STUN connections. Restrictive networks may still prevent media.
 - Metered dashboard/free-plan keys are not treated as ephemeral credentials. Rotate credentials manually when needed and monitor the selected plan's quota. The public ICE endpoint has same-origin checks and per-instance throttling, not global quota enforcement.
 - This is a hackathon prototype, not an audited secure messenger. It has no moderation backend, archival storage, identity recovery or production service guarantee.
 
@@ -145,7 +145,7 @@ Wallet-approved rooms bind a signed identity to the room ID, registry, network, 
 
 The current suite passes **29 automated checks: 11 contract checks and 18 Node tests**, followed by a production build. Coverage includes encrypted messages and invitations, peer capacity, stream grouping, microphone/camera capture lifecycle, leaving during capture, late peers, relay configuration, and the server ICE endpoint.
 
-Previously demonstrated: bidirectional local-tab chat and the confirmed Monad testnet deployment above. An isolated browser test also passed with synthetic media forced through production TURN: both selected candidates were relays, transfer bytes increased, 385 video frames decoded, and received audio RMS was 0.1064. This verifies the transport path, not a complete Nadwave/Nostr room workflow or physical microphone/camera capture.
+Previously demonstrated: bidirectional local-tab chat and the confirmed Monad testnet deployment above. A complete synthetic room test also passed using the actual Nadwave session and Nostr discovery in two browser tabs. Both selected candidates were relays; the remote peer decoded 180 video frames and 1,193,760 audio samples with RMS 0.0884. This verifies the room/media workflow with synthetic streams, not physical microphone/camera capture or two separate devices.
 
 The Vercel production deployment also passed a fresh `npm ci` and build on Node.js 24.
 
@@ -185,7 +185,7 @@ After authenticating the Vercel CLI, run `vercel --prod` from the project direct
 
 ## TURN setup and call acceptance
 
-Selected provider: **Metered**, application `rudra9439.metered.live`. The active account allowance is **500 MB**, with **overages disabled**. Production `/api/ice` returned HTTP 200, `relayConfigured: true`, and five endpoints covering STUN, TURN and TURNS with default/UDP and TCP paths. The provider API key stays server-side; browsers receive the ICE credentials WebRTC needs. A separate browser peer-pair test verified synthetic audio/video through TURN; this is not a completed two-device Nadwave room call.
+Selected provider: **Metered**, application `rudra9439.metered.live`. The active account allowance is **500 MB**, with **overages disabled**. Production `/api/ice` returned HTTP 200, `relayConfigured: true`, and five endpoints covering STUN, TURN and TURNS with default/UDP and TCP paths. The provider API key stays server-side; browsers receive the ICE credentials WebRTC needs. A complete synthetic Nadwave room test verified audio/video through TURN in two browser tabs. A physical two-device call remains unchecked.
 
 1. Select the Metered application `rudra9439.metered.live`. Account credentials stay with the account owner.
 2. Obtain the application domain and a **credential-scoped API key** that can retrieve TURN credentials. Do not use an account-wide administration key.
@@ -208,7 +208,7 @@ Before claiming a completed live-call demo:
 3. Check that the app reports **Live media link connected**, not only local-tab chat. Exercise mute, camera toggle, reconnect, and leave; leaving must stop capture.
 4. Confirm a selected relay candidate using browser WebRTC diagnostics when testing TURN. A successful ICE API response alone does not prove that a relay carried media.
 
-**Verified:** production ICE configuration and an isolated synthetic audio/video test over a forced TURN path. **Pending:** the complete two-device Nadwave room workflow and physical microphone/camera acceptance. No completed real-room call is claimed yet.
+**Verified:** production ICE configuration and a complete synthetic Nadwave room test with Nostr discovery and forced TURN routing in two browser tabs. **Unchecked:** physical microphone/camera capture and a call between two separate devices.
 
 ## Credits and license
 
